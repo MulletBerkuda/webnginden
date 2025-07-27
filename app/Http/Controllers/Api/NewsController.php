@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use DOMDocument;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\News;
@@ -15,7 +17,7 @@ public function index(Request $request)
     );
 }
 
-  public function store(Request $request)
+ public function store(Request $request)
 {
     $request->validate([
         'title'   => 'required|string',
@@ -23,16 +25,29 @@ public function index(Request $request)
         'image'   => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
     ]);
 
+    // Upload gambar utama (jika ada)
     $path = $request->hasFile('image')
         ? $request->file('image')->store('berita', 'public')
         : null;
 
+    // Ambil thumbnail dari konten HTML
+    $thumbnail = null;
+    $doc = new DOMDocument();
+    libxml_use_internal_errors(true); // hindari error warning tag HTML
+    $doc->loadHTML($request->content);
+    $img = $doc->getElementsByTagName('img')->item(0);
+    if ($img) {
+        $thumbnail = $img->getAttribute('src');
+    }
+
+    // Simpan berita
     $news = News::create([
-        'user_id' => $request->user()->id,
-        'title'   => $request->title,
-        'content' => $request->content, // HTML dari Quill juga masuk di sini
-        'image'   => $path,
-        'status'  => 'pending',
+        'user_id'   => $request->user()->id,
+        'title'     => $request->title,
+        'content'   => $request->content,
+        'image'     => $path,
+        'thumbnail' => $thumbnail, // <-- thumbnail dari <img> pertama konten
+        'status'    => 'pending',
     ]);
 
     return response()->json([

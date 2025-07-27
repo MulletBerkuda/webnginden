@@ -15,6 +15,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_admin', // ✅ tambahkan ini
     ];
 
     protected $hidden = [
@@ -25,11 +26,16 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'is_admin' => 'boolean', // ✅ tambahkan ini
     ];
 
-    // ⬇️ Taruh di dalam class
     public function likedNews()
     {
         return $this->belongsToMany(News::class, 'news_likes');
     }
+    public function news()
+{
+    return $this->hasMany(\App\Models\News::class);
+}
+
 }

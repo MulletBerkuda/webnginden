@@ -16,6 +16,7 @@ class News extends Model
         'content',
         'image',
         'status',
+        'thumbnail',
     ];
 public function likedBy()
 {

@@ -55,21 +55,28 @@
 
     <script>
         document.getElementById('loginForm').addEventListener('submit', async function (e) {
-            e.preventDefault();
+    e.preventDefault();
 
-            try {
-                const response = await axios.post('/api/login', {
-                    email: document.getElementById('email').value,
-                    password: document.getElementById('password').value,
-                });
-
-                localStorage.setItem('token', response.data.access_token);
-                window.location.href = "/dashboard";
-
-            } catch (error) {
-                document.getElementById('error').classList.remove('hidden');
-            }
+    try {
+        const response = await axios.post('/api/login', {
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value,
         });
+
+        localStorage.setItem('token', response.data.access_token);
+        localStorage.setItem('is_admin', response.data.user.is_admin);
+
+        if (response.data.user.is_admin) {
+            window.location.href = "/admin";
+        } else {
+            window.location.href = "/dashboard";
+        }
+
+    } catch (error) {
+        document.getElementById('error').classList.remove('hidden');
+    }
+});
+
     </script>
 
 </body>

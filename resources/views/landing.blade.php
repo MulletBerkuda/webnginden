@@ -26,20 +26,20 @@
         <h1 class="text-2xl font-bold mb-6">Berita Kegiatan Warga</h1>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            @forelse ($news as $item)
-                <a href="{{ url('/berita/' . $item->id) }}" class="bg-white rounded-lg shadow hover:shadow-lg overflow-hidden transition">
-                    @if ($item->image)
-                        <img src="{{ asset('storage/' . $item->image) }}" class="w-full h-48 object-cover" alt="Cover">
-                    @endif
-                    <div class="p-4">
-                        <h2 class="text-lg font-semibold">{{ Str::limit($item->title, 60) }}</h2>
-                        <p class="text-sm text-gray-500 mt-1">{{ $item->created_at->format('d M Y') }}</p>
-                        <p class="text-gray-700 mt-2">{{ Str::limit(strip_tags($item->content), 100) }}</p>
-                    </div>
-                </a>
-            @empty
-                <p class="text-gray-600">Belum ada berita yang dipublikasikan.</p>
-            @endforelse
+     @forelse ($news as $item)
+    <a href="{{ url('/berita/' . $item->id) }}" class="bg-white rounded-lg shadow hover:shadow-lg overflow-hidden transition">
+        @if ($item->thumbnail)
+            <img src="{{ $item->thumbnail }}" class="w-full h-48 object-cover" alt="Thumbnail">
+        @endif
+        <div class="p-4">
+            <h2 class="text-lg font-semibold">{{ Str::limit($item->title, 60) }}</h2>
+            <p class="text-sm text-gray-500 mt-1">{{ $item->created_at->format('d M Y') }}</p>
+            <p class="text-gray-700 mt-2">{{ Str::limit(strip_tags($item->content), 100) }}</p>
+        </div>
+    </a>
+@empty
+    <p class="text-gray-600">Belum ada berita yang dipublikasikan.</p>
+@endforelse
         </div>
     </div>
 
