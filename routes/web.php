@@ -36,3 +36,6 @@ Route::put('/admin/users/{id}/role', [UserController::class, 'updateRole'])->nam
 Route::get('/admin/news', [NewsController::class, 'manage'])->name('admin.news.manage');
 Route::post('/admin/news/{id}/status', [NewsController::class, 'updateStatus'])->name('admin.news.updateStatus');
 Route::get('/admin/news/{id}', [NewsController::class, 'show'])->name('admin.news.show');
+Route::delete('/admin/users/{id}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+Route::post('/admin/news/update-status/{id}', [NewsController::class, 'updateStatus'])->name('admin.news.updateStatus');
+Route::delete('/admin/news/delete/{id}', [NewsController::class, 'destroy'])->name('admin.news.destroy');

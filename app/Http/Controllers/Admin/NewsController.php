@@ -23,19 +23,26 @@ class NewsController extends Controller
     return view('admin.news_manage', compact('news'));
 }
 
-public function updateStatus(Request $request, $id)
-{
-    $news = News::findOrFail($id);
-    $news->status = $news->status === 'published' ? 'pending' : 'published';
-    $news->save();
 
-    return back()->with('success', 'Status berita diperbarui.');
-}
 
 public function show($id)
 {
     $berita = News::findOrFail($id);
     return view('admin.news_detail', compact('berita'));
 }
+public function updateStatus(Request $request, $id)
+{
+    $news = News::findOrFail($id);
+    $news->status = $request->status;
+    $news->save();
 
+    return redirect()->back()->with('success', 'Status berita berhasil diperbarui.');
+}
+public function destroy($id)
+{
+    $news = News::findOrFail($id);
+    $news->delete();
+
+    return redirect()->back()->with('success', 'Berita berhasil dihapus.');
+}
 }

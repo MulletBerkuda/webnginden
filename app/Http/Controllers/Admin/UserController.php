@@ -27,4 +27,18 @@ public function updateRole(Request $request, $id)
 
     return back()->with('success', 'Peran pengguna berhasil diperbarui.');
 }
+public function destroy($id)
+{
+    $user = User::findOrFail($id);
+
+    // Hindari menghapus diri sendiri (opsional)
+    if (auth()->id() == $user->id) {
+        return back()->with('error', 'Tidak bisa menghapus akun sendiri.');
+    }
+
+    $user->delete();
+
+    return back()->with('success', 'User berhasil dihapus.');
+}
+
 }
