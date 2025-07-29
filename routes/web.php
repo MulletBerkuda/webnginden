@@ -3,7 +3,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\landing;
 use App\Models\News;
 use App\Http\Controllers\Admin\NewsController;
-use App\Http\Controllers\Admin\UserController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -30,12 +30,17 @@ Route::view('/register', 'register')->name('register'); // nanti kita buat juga
 Route::view('/landing', 'landing')->middleware('auth');
 Route::view('/dashboard', 'dashboard')->name('dashboard');
 Route::view('/add_news', 'add_news')->name('news.add');
+Route::put('/news/{id}', [NewsController::class, 'update'])->name('news.update');
+Route::get('/news/{id}/edit', [AdminNewsController::class, 'edit']);
+
+
+
 Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users');
 Route::put('/admin/users/{id}/role', [UserController::class, 'updateRole'])->name('admin.users.updateRole');
-
 Route::get('/admin/news', [NewsController::class, 'manage'])->name('admin.news.manage');
 Route::post('/admin/news/{id}/status', [NewsController::class, 'updateStatus'])->name('admin.news.updateStatus');
 Route::get('/admin/news/{id}', [NewsController::class, 'show'])->name('admin.news.show');
 Route::delete('/admin/users/{id}', [UserController::class, 'destroy'])->name('admin.users.destroy');
 Route::post('/admin/news/update-status/{id}', [NewsController::class, 'updateStatus'])->name('admin.news.updateStatus');
 Route::delete('/admin/news/delete/{id}', [NewsController::class, 'destroy'])->name('admin.news.destroy');
+

@@ -38,6 +38,8 @@ public function updateStatus(Request $request, $id)
 
     return redirect()->back()->with('success', 'Status berita berhasil diperbarui.');
 }
+
+
 public function destroy($id)
 {
     $news = News::findOrFail($id);

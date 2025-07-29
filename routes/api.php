@@ -30,3 +30,8 @@ Route::middleware('auth:sanctum')->get('/news', [NewsController::class, 'index']
         
 Route::middleware('auth:sanctum')->post('/upload-image', [NewsController::class, 'uploadImage']);
 Route::middleware('auth:sanctum')->post('/news/{news}/like', [NewsController::class, 'toggleLike']);
+// api.php
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/news/{id}', [NewsController::class, 'show']); // API untuk edit
+    Route::put('/news/{id}', [NewsController::class, 'update']);
+});

@@ -2,52 +2,72 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard - Portal KKN</title>
+    <title>Dashboard - JEJAK</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body class="bg-gray-50 text-gray-800">
 
     {{-- Navbar --}}
-    <nav class="bg-white shadow mb-8">
-        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="text-xl font-bold">
-                <a href="{{ url('/') }}">Portal KKN</a>
+    <nav class="bg-white shadow sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="text-2xl font-extrabold text-indigo-600">
+                <a href="{{ url('/') }}">JEJAK</a>
             </div>
-            <div class="space-x-4">
-                <a href="{{ url('/') }}" class="hover:underline">Home</a>
-                <a href="{{ url('/dashboard') }}" class="hover:underline">Dashboard</a>
-                <a href="#" onclick="logout()" class="hover:underline text-red-600">Logout</a>
+            <div class="space-x-4" id="navbar-links">
+                <!-- Akan diisi oleh JS -->
             </div>
         </div>
     </nav>
 
     {{-- Konten Dashboard --}}
-    <div class="max-w-5xl mx-auto px-4">
-        <h1 class="text-2xl font-bold mb-4">Berita Saya</h1>
-
-        <div class="mb-6">
-            <a href="{{ url('/add_news') }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+    <main class="max-w-5xl mx-auto px-4 py-10">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Berita Saya</h1>
+            <a href="{{ url('/add_news') }}"
+               class="inline-block bg-indigo-600 text-white px-5 py-2 rounded-md hover:bg-indigo-700 transition font-semibold shadow">
                 + Tambah Berita
             </a>
         </div>
 
-        <table class="w-full border text-left bg-white">
-            <thead class="bg-gray-200">
-                <tr>
-                    <th class="p-2">Judul</th>
-                    <th class="p-2">Status</th>
-                    <th class="p-2">Tanggal</th>
-                </tr>
-            </thead>
-            <tbody id="beritaList">
-                <tr><td class="p-2" colspan="3">Memuat data...</td></tr>
-            </tbody>
-        </table>
-    </div>
+        <div class="overflow-x-auto rounded-lg shadow">
+            <table class="min-w-full bg-white rounded-lg overflow-hidden">
+               <thead class="bg-indigo-100 text-gray-700">
+                    <tr>
+                        <th class="text-left px-4 py-3 text-sm font-semibold">Judul</th>
+                        <th class="text-left px-4 py-3 text-sm font-semibold">Status</th>
+                        <th class="text-left px-4 py-3 text-sm font-semibold">Tanggal</th>
+                        <th class="text-left px-4 py-3 text-sm font-semibold">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="beritaList" class="divide-y divide-gray-200 text-sm">
+                    <tr><td class="px-4 py-3" colspan="3">Memuat data...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
 
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            const navbar = document.getElementById('navbar-links');
+
+            if (token) {
+                navbar.innerHTML = `
+                    <a href="{{ url('/') }}" class="text-gray-700 hover:text-indigo-600 font-medium">Home</a>
+                    <a href="{{ url('/dashboard') }}" class="text-gray-700 hover:text-indigo-600 font-medium">Dashboard</a>
+                    <a href="#" onclick="logout()" class="text-red-600 hover:text-red-800 font-medium">Logout</a>
+                `;
+            } else {
+                navbar.innerHTML = `
+                    <a href="{{ url('/') }}" class="text-gray-700 hover:text-indigo-600 font-medium">Home</a>
+                    <a href="{{ url('/login') }}" class="text-gray-700 hover:text-indigo-600 font-medium">Login</a>
+                    <a href="{{ url('/register') }}" class="text-gray-700 hover:text-indigo-600 font-medium">Register</a>
+                `;
+            }
+        });
+
         const token = localStorage.getItem('token');
 
         async function logout() {
@@ -84,22 +104,28 @@
                 tbody.innerHTML = '';
 
                 if (beritaUser.length === 0) {
-                    tbody.innerHTML = `<tr><td class="p-2" colspan="3">Belum ada berita.</td></tr>`;
+                    tbody.innerHTML = `<tr><td class="px-4 py-3 text-gray-600" colspan="3">Belum ada berita.</td></tr>`;
+                    return;
                 }
 
-                beritaUser.forEach(item => {
-                    tbody.innerHTML += `
-                        <tr class="border-b">
-                            <td class="p-2">${item.title}</td>
-                            <td class="p-2 capitalize">${item.status}</td>
-                            <td class="p-2">${new Date(item.created_at).toLocaleDateString()}</td>
-                        </tr>
-                    `;
-                });
+           beritaUser.forEach(item => {
+    tbody.innerHTML += `
+        <tr class="hover:bg-gray-50 transition">
+            <td class="px-4 py-3">${item.title}</td>
+            <td class="px-4 py-3 capitalize">${item.status}</td>
+            <td class="px-4 py-3">${new Date(item.created_at).toLocaleDateString()}</td>
+            <td class="px-4 py-3 space-x-2">
+                <a href="/berita/${item.id}" class="text-indigo-600 hover:underline text-sm">Detail</a>
+               
+            </td>
+        </tr>
+    `;
+});
+
 
             } catch (err) {
                 document.getElementById('beritaList').innerHTML =
-                    `<tr><td class="p-2 text-red-500" colspan="3">Gagal memuat berita.</td></tr>`;
+                    `<tr><td class="px-4 py-3 text-red-500" colspan="3">Gagal memuat berita.</td></tr>`;
             }
         }
 

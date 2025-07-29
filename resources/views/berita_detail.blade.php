@@ -10,48 +10,47 @@
 <body class="bg-gray-100 text-gray-800">
 
     {{-- Navbar --}}
-    <nav class="bg-white shadow mb-8">
-        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center">
-        
-                    <a href="{{ url('/') }}" class=" inline-block font-bold bg-gray-200 text-gray-800 px-2 py-1 rounded hover:bg-gray-300">
-    ← Home
-</a>
-
-            <div class="text-xl font-bold">
-          
-                <a href="{{ url('/') }}">Portal KKN</a>
-              
+    <nav class="bg-white shadow sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="text-2xl font-extrabold text-indigo-600">
+                <a href="{{ url('/') }}">JEJAK</a>
+            </div>
+            <div class="space-x-4" id="navbar-links">
+                <!-- Akan diisi oleh JS -->
             </div>
         </div>
     </nav>
 
     {{-- Konten Berita --}}
-    <div class="max-w-4xl mx-auto bg-white p-6 rounded shadow">
-        <h1 class="text-3xl font-bold mb-2">{{ $berita->title }}</h1>
+    <div class="max-w-4xl mx-auto bg-white p-6 mt-6 rounded-lg shadow-md transition-all duration-300 ease-in-out hover:shadow-xl">
+        <h1 class="text-3xl font-extrabold mb-4 leading-snug text-gray-900">{{ $berita->title }}</h1>
 
-        {{-- Info: Penulis, waktu, estimasi baca, dll --}}
-        <div class="flex items-center justify-between text-sm text-gray-600 mb-4 flex-wrap gap-2">
-            <div class="flex items-center gap-2">
+        {{-- Info: Penulis, waktu, estimasi baca --}}
+        <div class="flex flex-col sm:flex-row sm:justify-between text-sm text-gray-600 mb-4 gap-2">
+            <div class="flex items-center flex-wrap gap-2">
                 <span class="font-semibold">{{ $berita->user->name ?? 'Admin' }}</span>
                 <span class="text-green-600 text-xs font-bold">✔</span>
                 <span>• {{ $berita->created_at->format('d M Y H:i') }} WIB</span>
                 <span>• waktu baca {{ ceil(str_word_count(strip_tags($berita->content)) / 200) }} menit</span>
             </div>
-            <div class="flex items-center space-x-4 mt-2 sm:mt-0">
-              <button onclick="likeBerita({{ $berita->id }})" class="hover:text-red-600">
-    ❤️ {{ $berita->likedBy->count() }}
-</button>
-
-                <a href="https://wa.me/?text={{ urlencode(url()->current()) }}" target="_blank" class="hover:text-green-600">🟢</a>
-                <button onclick="copyLink()" class="hover:text-blue-600">🔗</button>
+            <div class="flex items-center gap-4 mt-2 sm:mt-0 text-xl">
+                <button onclick="likeBerita({{ $berita->id }})" class="hover:text-red-600 transition duration-300 ease-in-out" title="Like">
+                    ❤️ {{ $berita->likedBy->count() }}
+                </button>
+                <a href="https://wa.me/?text={{ urlencode(url()->current()) }}" target="_blank" class="hover:text-green-600 transition duration-300" title="Share to WhatsApp">
+                    🟢
+                </a>
+                <button onclick="copyLink()" class="hover:text-blue-600 transition duration-300" title="Copy Link">
+                    🔗
+                </button>
             </div>
         </div>
 
         @if ($berita->image)
-            <img src="{{ asset('storage/' . $berita->image) }}" alt="Cover" class="w-full rounded mb-6 object-cover">
+            <img src="{{ asset('storage/' . $berita->image) }}" alt="Cover" class="w-full h-64 object-cover rounded-lg mb-6 shadow-sm transition duration-300 hover:brightness-95">
         @endif
 
-        <div class="prose prose-lg max-w-none">
+        <div class="prose prose-lg max-w-none text-justify leading-relaxed text-gray-800">
             {!! $berita->content !!}
         </div>
     </div>
@@ -61,34 +60,47 @@
     </footer>
 
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            const navbar = document.getElementById('navbar-links');
+
+            if (token) {
+                navbar.innerHTML = `
+                    <a href="{{ url('/') }}" class="text-gray-700 hover:text-indigo-600 font-medium">Home</a>
+                    <a href="{{ url('/dashboard') }}" class="text-gray-700 hover:text-indigo-600 font-medium">Dashboard</a>
+                    <a href="#" onclick="logout()" class="text-red-600 hover:text-red-800 font-medium">Logout</a>
+                `;
+            } else {
+                navbar.innerHTML = `
+                    <a href="{{ url('/') }}" class="text-gray-700 hover:text-indigo-600 font-medium">Home</a>
+                    <a href="{{ url('/login') }}" class="text-gray-700 hover:text-indigo-600 font-medium">Login</a>
+                    <a href="{{ url('/register') }}" class="text-gray-700 hover:text-indigo-600 font-medium">Register</a>
+                `;
+            }
+        });
+
         function copyLink() {
             navigator.clipboard.writeText(window.location.href);
             alert("Link berhasil disalin!");
         }
 
-        function likeBerita() {
-            let likeEl = document.getElementById("likeCount");
-            likeEl.innerText = parseInt(likeEl.innerText) + 1;
-        }
         async function likeBerita(newsId) {
-    const token = localStorage.getItem('token');
+            const token = localStorage.getItem('token');
 
-    try {
-        const res = await axios.post(`/api/news/${newsId}/like`, {}, {
-            headers: {
-                Authorization: `Bearer ${token}`
+            try {
+                const res = await axios.post(`/api/news/${newsId}/like`, {}, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+
+                alert(res.data.message);
+                location.reload();
+            } catch (err) {
+                alert("Kamu sudah menyukai berita ini");
+                console.error(err);
             }
-        });
-
-        alert(res.data.message);
-        // Update jumlah like kalau perlu
-        location.reload();
-    } catch (err) {
-        alert("Kamu sudah menyukai berita ini");
-        console.error(err);
-    }
-}
-
+        }
     </script>
 
 </body>

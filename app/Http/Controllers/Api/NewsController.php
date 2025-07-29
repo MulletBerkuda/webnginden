@@ -58,7 +58,7 @@ public function index(Request $request)
 public function uploadImage(Request $request)
 {
     $request->validate([
-        'image' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+        'image' => 'required|image|mimes:jpg,jpeg,png|max:5120',
     ]);
 
     $path = $request->file('image')->store('berita', 'public');
@@ -80,5 +80,51 @@ public function toggleLike(Request $request, News $news)
         return response()->json(['message' => 'Liked']);
     }
 }
+public function show($id)
+{
+    $news = News::findOrFail($id);
+    return response()->json($news);
+}
 
+public function edit($id)
+{
+    $berita = News::findOrFail($id);
+    return view('edit_news', compact('berita'));
+}
+public function update(Request $request, $id)
+{
+    $news = News::findOrFail($id);
+
+    $request->validate([
+        'title' => 'required|string',
+        'content' => 'required|string',
+        'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        'status' => 'nullable|string',
+    ]);
+
+    $news->title = $request->title;
+    $news->content = $request->content;
+    $news->status = $request->status ?? $news->status;
+
+    if ($request->hasFile('image')) {
+        $path = $request->file('image')->store('berita', 'public');
+        $news->image = $path;
+    }
+
+    // Update thumbnail dari konten
+    $doc = new \DOMDocument();
+    libxml_use_internal_errors(true);
+    $doc->loadHTML($request->content);
+    $img = $doc->getElementsByTagName('img')->item(0);
+    if ($img) {
+        $news->thumbnail = $img->getAttribute('src');
+    }
+
+    $news->save();
+
+    return response()->json([
+        'message' => 'Berita berhasil diperbarui.',
+        'data' => $news
+    ]);
+}
 }

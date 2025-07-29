@@ -60,7 +60,7 @@
         </div>
 
         <div class="mt-6">
-            <a href="{{ route('admin.news.manage') }}" class="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            <a href="javascript:window.history.back()" class="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
                 ← Kembali ke Daftar Berita
             </a>
         </div>

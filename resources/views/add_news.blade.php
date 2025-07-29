@@ -77,10 +77,10 @@
       const file = input.files[0];
       if (!file) return;
 
-      if (file.size > 2 * 1024 * 1024) {
-        alert('❌ Gambar terlalu besar. Maksimal 2MB.');
-        return;
-      }
+     if (file.size > 5 * 1024 * 1024) {
+  alert('❌ Gambar terlalu besar. Maksimal 5MB.');
+  return;
+}
 
       const formData = new FormData();
       formData.append('image', file);

@@ -50,7 +50,8 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         @forelse ($news as $item)
-            <a href="{{ url('/berita/' . $item->id) }}"
+            <a href="{{ route('admin.news.show', $item->id) }}"
+
                class="bg-white rounded-xl shadow-md hover:shadow-xl transition-transform transform hover:-translate-y-1 duration-300 overflow-hidden flex flex-col">
                 <!-- Thumbnail -->
                 @if ($item->thumbnail)
