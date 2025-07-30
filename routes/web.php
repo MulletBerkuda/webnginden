@@ -3,6 +3,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\landing;
 use App\Models\News;
 use App\Http\Controllers\Admin\NewsController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Api\NewsController as NewsApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,9 +32,9 @@ Route::view('/register', 'register')->name('register'); // nanti kita buat juga
 Route::view('/landing', 'landing')->middleware('auth');
 Route::view('/dashboard', 'dashboard')->name('dashboard');
 Route::view('/add_news', 'add_news')->name('news.add');
-Route::put('/news/{id}', [NewsController::class, 'update'])->name('news.update');
-Route::get('/news/{id}/edit', [AdminNewsController::class, 'edit']);
-
+ // halaman edit
+Route::put('/news/{id}', [NewsApiController::class, 'update'])->name('news.update'); // proses update
+Route::get('/berita/{id}/edit', [NewsApiController::class, 'edit'])->name('news.edit');
 
 
 Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users');

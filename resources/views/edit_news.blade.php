@@ -4,89 +4,167 @@
     <meta charset="UTF-8">
     <title>Edit Berita - Portal KKN</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        .ql-editor {
-            min-height: 200px;
+        #editor {
+            height: 300px;
         }
     </style>
 </head>
-<body>
-    <h1>Edit Berita</h1>
-    <form id="form">
-        <input type="text" id="title" placeholder="Judul" value="{{ $berita->title }}" required><br><br>
-        <input type="file" id="image"><br><br>
+<body class="bg-gray-100 text-gray-800">
+<a href="{{ url('/') }}" class="inline-block font-bold bg-gray-200 text-gray-800 px-2 py-1 rounded hover:bg-gray-300">
+    ← Home
+</a>
+<div class="max-w-3xl mx-auto mt-10 bg-white p-6 rounded shadow">
+    <h1 class="text-2xl font-bold mb-6">Edit Berita</h1>
 
-        <div id="editor">{!! $berita->content !!}</div><br>
+    <form id="formBerita">
+        <div class="mb-4">
+            <label class="block font-medium">Judul</label>
+            <input type="text" id="title" class="w-full border border-gray-300 px-3 py-2 rounded" value="{{ $berita->title }}" required>
+        </div>
 
-        <button type="submit">Simpan</button>
+        <div class="mb-4">
+            <label class="block font-medium">Isi Berita</label>
+            <div id="editor" class="bg-white border border-gray-300 rounded"></div>
+        </div>
+
+        <div class="mb-4">
+            <label class="block font-medium mb-1">Pilih Thumbnail</label>
+            <div id="thumbnailOptions" class="grid grid-cols-3 gap-4"></div>
+        </div>
+
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Update</button>
+
+        <p id="notif" class="mt-4 text-green-600 hidden">✅ Berita berhasil diperbarui!</p>
     </form>
+</div>
 
-    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
-    <script>
-        const quill = new Quill('#editor', {
-            theme: 'snow',
-            modules: {
-                toolbar: [
-                    ['bold', 'italic', 'underline'],
-                    ['link', 'image']
-                ]
-            }
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+<script>
+  const token = localStorage.getItem('token');
+  if (!token) alert('❌ Anda belum login!');
+
+  const quill = new Quill('#editor', {
+    theme: 'snow',
+    modules: {
+      toolbar: {
+        container: [
+          [{ 'header': [1, 2, 3, false] }],
+          ['bold', 'italic', 'underline'],
+          ['link', 'image'],
+          [{ 'list': 'ordered' }, { 'list': 'bullet' }]
+        ],
+        handlers: { image: imageHandler }
+      }
+    }
+  });
+
+  // Set isi awal editor
+  quill.root.innerHTML = `{!! $berita->content !!}`;
+
+  async function imageHandler() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.click();
+
+    input.onchange = async () => {
+      const file = input.files[0];
+      if (!file) return;
+
+      if (file.size > 5 * 1024 * 1024) {
+        alert('❌ Gambar terlalu besar. Maksimal 5MB.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+        const res = await axios.post('/api/upload-image', formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
         });
 
-        function uploadImage(file) {
-            const formData = new FormData();
-            formData.append('image', file);
+        const range = quill.getSelection(true);
+        quill.insertEmbed(range.index, 'image', res.data.url);
+        quill.insertText(range.index + 1, '\n', Quill.sources.SILENT);
+        quill.setSelection(range.index + 2, Quill.sources.SILENT);
+        setTimeout(() => updateThumbnailOptions(), 50);
+      } catch (err) {
+        alert('❌ Gagal mengunggah gambar.');
+        console.error(err);
+      }
+    };
+  }
 
-            return axios.post('/api/news/upload-image', formData, {
-                headers: {
-                    Authorization: 'Bearer ' + localStorage.getItem('token'),
-                    'Content-Type': 'multipart/form-data'
-                }
-            }).then(response => response.data.url);
+  function updateThumbnailOptions() {
+    const content = quill.root.innerHTML;
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(content, 'text/html');
+    const images = Array.from(doc.querySelectorAll('img'));
+    const container = document.getElementById('thumbnailOptions');
+    const existing = `{{ $berita->thumbnail }}`;
+
+    container.innerHTML = '';
+    if (images.length === 0) {
+      container.innerHTML = '<p class="col-span-3 text-sm text-gray-500">Tidak ada gambar ditemukan</p>';
+      return;
+    }
+
+    images.forEach((img, index) => {
+      const url = img.getAttribute('src');
+      const id = `thumb_${index}`;
+      const checked = existing === url ? 'checked' : (index === 0 && !existing ? 'checked' : '');
+
+      const option = document.createElement('label');
+      option.className = 'thumb-option cursor-pointer flex flex-col items-center';
+      option.innerHTML = `
+        <input type="radio" name="thumbnail" value="${url}" id="${id}" ${checked}>
+        <img src="${url}" class="mt-1 border border-gray-300 p-1 rounded w-32 h-auto" />
+      `;
+
+      container.appendChild(option);
+    });
+  }
+
+  quill.on('text-change', updateThumbnailOptions);
+  window.addEventListener('DOMContentLoaded', updateThumbnailOptions);
+
+  document.getElementById('formBerita').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const title = document.getElementById('title').value;
+    const content = quill.root.innerHTML;
+    const thumbInput = document.querySelector('input[name="thumbnail"]:checked');
+    const thumbnail = thumbInput ? thumbInput.value : '';
+    const formData = new FormData();
+
+    formData.append('title', title);
+    formData.append('content', content);
+    formData.append('thumbnail', thumbnail);
+    formData.append('_method', 'PUT');
+
+    try {
+      const id = {{ $berita->id }};
+      await axios.post(`/api/news/${id}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
         }
+      });
 
-        quill.getModule('toolbar').addHandler('image', () => {
-            const input = document.createElement('input');
-            input.setAttribute('type', 'file');
-            input.click();
-
-            input.onchange = async () => {
-                const file = input.files[0];
-                const url = await uploadImage(file);
-                const range = quill.getSelection();
-                quill.insertEmbed(range.index, 'image', url);
-            };
-        });
-
-        document.getElementById('form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const title = document.getElementById('title').value;
-            const content = quill.root.innerHTML;
-            const image = document.getElementById('image').files[0];
-            const formData = new FormData();
-
-            formData.append('title', title);
-            formData.append('content', content);
-            if (image) formData.append('image', image);
-
-            try {
-                const id = {{ $berita->id }};
-                const res = await axios.post(`/api/news/${id}?_method=PUT`, formData, {
-                    headers: {
-                        Authorization: 'Bearer ' + localStorage.getItem('token'),
-                        'Content-Type': 'multipart/form-data'
-                    }
-                });
-                alert('Berita berhasil diupdate!');
-                window.location.href = '/dashboard';
-            } catch (err) {
-                alert('Terjadi kesalahan saat update berita.');
-                console.error(err);
-            }
-        });
-    </script>
+      document.getElementById('notif').classList.remove('hidden');
+    } catch (err) {
+      alert('❌ Gagal memperbarui berita.');
+      console.error(err);
+    }
+  });
+</script>
 </body>
 </html>

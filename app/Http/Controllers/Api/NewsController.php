@@ -91,6 +91,8 @@ public function edit($id)
     $berita = News::findOrFail($id);
     return view('edit_news', compact('berita'));
 }
+
+
 public function update(Request $request, $id)
 {
     $news = News::findOrFail($id);
@@ -98,7 +100,7 @@ public function update(Request $request, $id)
     $request->validate([
         'title' => 'required|string',
         'content' => 'required|string',
-        'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        'image' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
         'status' => 'nullable|string',
     ]);
 
@@ -127,4 +129,5 @@ public function update(Request $request, $id)
         'data' => $news
     ]);
 }
+
 }

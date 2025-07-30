@@ -13,7 +13,9 @@
     <nav class="bg-white shadow sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
             <div class="text-2xl font-extrabold text-indigo-600">
-                <a href="{{ url('/') }}">JEJAK</a>
+            <a href="{{ url('/') }}">
+            <img src="{{ asset('asset/logo.png') }}" alt="Logo JEJAK" class="h-10">
+            </a>
             </div>
             <div class="space-x-4" id="navbar-links">
                 <!-- Akan diisi oleh JS -->
@@ -108,15 +110,22 @@
                     return;
                 }
 
-           beritaUser.forEach(item => {
+  beritaUser.forEach(item => {
     tbody.innerHTML += `
         <tr class="hover:bg-gray-50 transition">
             <td class="px-4 py-3">${item.title}</td>
-            <td class="px-4 py-3 capitalize">${item.status}</td>
+            <td class="px-4 py-3">
+                <span class="text-xs font-semibold px-3 py-1 rounded-full
+                    ${item.status === 'published' ? 'bg-green-100 text-green-700' : 
+                      item.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 
+                      'bg-gray-100 text-gray-700'}">
+                    ${item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                </span>
+            </td>
             <td class="px-4 py-3">${new Date(item.created_at).toLocaleDateString()}</td>
             <td class="px-4 py-3 space-x-2">
                 <a href="/berita/${item.id}" class="text-indigo-600 hover:underline text-sm">Detail</a>
-               
+                <a href="/berita/${item.id}/edit" class="text-blue-600 hover:underline">Edit</a>
             </td>
         </tr>
     `;

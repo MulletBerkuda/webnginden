@@ -13,7 +13,9 @@
     <nav class="bg-white shadow sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
             <div class="text-2xl font-extrabold text-indigo-600">
-                <a href="{{ url('/') }}">JEJAK</a>
+          <a href="{{ url('/') }}">
+            <img src="{{ asset('asset/logo.png') }}" alt="Logo JEJAK" class="h-10">
+            </a>
             </div>
             <div class="space-x-4" id="navbar-links">
                 <!-- Akan diisi oleh JS -->

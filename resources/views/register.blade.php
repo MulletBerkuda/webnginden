@@ -10,17 +10,18 @@
 <body class="bg-gray-100">
 
     {{-- Navbar --}}
-    <nav class="bg-white shadow mb-8">
-        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="text-xl font-bold">
-                <a href="{{ url('/') }}">Portal KKN</a>
-            </div>
-            <div class="space-x-4">
-                <a href="{{ url('/') }}" class="hover:underline">Home</a>
-                <a href="{{ url('/login') }}" class="hover:underline">Login</a>
-            </div>
+<nav class="bg-white shadow-sm mb-10">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+        <div class="text-2xl font-bold text-indigo-600">
+            <a href="{{ url('/') }}">
+            <img src="{{ asset('asset/logo.png') }}" alt="Logo JEJAK" class="h-10">
+            </a>
         </div>
-    </nav>
+        <div class="space-x-4">
+            <a href="{{ url('/') }}" class="text-gray-700 hover:text-indigo-600 font-medium">Home</a>
+        </div>
+    </div>
+</nav>
 
     {{-- Form Register --}}
     <div class="flex items-center justify-center min-h-screen -mt-20">
@@ -44,14 +45,14 @@
                 </div>
 
                 <button type="submit"
-                        class="bg-green-600 text-white w-full py-2 rounded hover:bg-green-700 transition">
+                        class="bg-blue-600 text-white w-full py-2 rounded hover:bg-green-700 transition">
                     Register
                 </button>
             </form>
 
             <p class="mt-4 text-center text-sm text-gray-600">
-                Already have an account?
-                <a href="{{ url('/login') }}" class="text-blue-600 hover:underline">Login here</a>
+                Sudah punya akun?
+                <a href="{{ url('/login') }}" class="text-blue-600 hover:underline">Login disini</a>
             </p>
 
             <div id="success" class="text-green-600 text-sm mt-4 text-center hidden">Register sukses! Mengarahkan ke login...</div>
